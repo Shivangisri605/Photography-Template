@@ -4,14 +4,14 @@ import Image from 'next/image';
 
 export default function AboutSection() {
   const equipment = [
-    'Canon Eos 5D Mark IV 24-105mm',
-    'Manfrotto Compact Tripod',
-    'DJI Ronin MX 3-Axis Gimbal Stabilizer',
+    'Canon 5D Mark IV Camera with a 24-105mm Everyday Zoom Lens',
+    'Nikon D5 Camera with a High-Quality 24-70mm Zoom Lens',
+    'Nikon Wide-Angle Lens (24mm) — Perfect for landscapes and low light!',
     'Canon EF100-400MM Lens',
     'Wondlan Wer01 Wireless Slider Time Lapse',
     'Nikon D5 24-70mm F2.8',
     'Nikon Af-S 24Mm F/1.4G Ed Lens',
-    'Wondlan Sniper Sn 2.1 Wf Wireless Dslr Rig',
+    'Manfrotto Light and Compact Tripod',
   ];
 
   return (
@@ -45,7 +45,7 @@ export default function AboutSection() {
                   <h3 className="text-xs font-bold uppercase tracking-widest text-slate-900 mb-4 pb-2 border-b border-slate-900/10">A Little About Me</h3>
                   <p className="text-slate-600 text-sm leading-relaxed">
                     <span className="font-serif font-black text-4xl mr-3 float-left text-slate-900 mt-1 leading-[0.8]">N</span>
-                    ulla vitae elit libero, a pharetra augue. Dapuis mattis consectetur purus sit amet fermentum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Sed posuere consectetur est at lobortis. Nullam id dolor id nibh ultricies ut.
+                    Life is good when it is simple and clear. Beautiful designs and good work take time and care. When everything connects perfectly, it brings a great result that everyone can enjoy. We focus on keeping things steady and moving in the right direction. Every small detail matters to create something truly great.
                   </p>
                   <p className="text-slate-500 text-[10px] font-bold tracking-wider uppercase mt-6 border-t border-slate-200/50 pt-3 w-fit">— Shivangi</p>
                 </div>
