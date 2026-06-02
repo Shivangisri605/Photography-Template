@@ -1,27 +1,39 @@
 'use client';
 
 import Image from 'next/image';
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 
 export default function GallerySection() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const galleryItems = [
-    '/an4.jpg',
-    '/an5.jpg',
-    '/an6.jpg',
-    '/an7.jpg',
-    '/an8.jpg',
-    '/an9.jpg',
-    '/br13.jpg',
-    '/br14.jpg',
-    '/br15.jpg',
-    '/br16.jpg',
-    '/br17.jpg',
+    { src: '/an4.jpg', category: 'Lakes' },
+    { src: '/an5.jpg', category: 'Forests' },
+    { src: '/an6.jpg', category: 'Mountains' },
+    { src: '/an7.jpg', category: 'Mountains' },
+    { src: '/br14.jpg', category: 'Mountains' },
+    { src: '/an9.jpg', category: 'Forests' },
+    { src: '/br13.jpg', category: 'Mountains' },
+    { src: '/br15.jpg', category: 'Mountains' },
+    { src: '/br16.jpg', category: 'Lakes' },
+    { src: '/br17.jpg', category: 'Lakes' },
   ];
+
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+
+  const categories = useMemo(() => {
+    const uniq = Array.from(new Set(galleryItems.map((g) => g.category)));
+    return ['All', ...uniq];
+  }, []);
+
+  const filteredItems = useMemo(() => {
+    if (selectedCategory === 'All') return galleryItems;
+    return galleryItems.filter((g) => g.category === selectedCategory);
+  }, [selectedCategory]);
 
   const checkScroll = () => {
     const container = scrollContainerRef.current;
@@ -112,6 +124,26 @@ export default function GallerySection() {
             </svg>
           </button>
 
+          {/* Filter buttons */}
+          <div className="flex gap-3 items-center justify-center mb-6">
+            {categories.map((cat) => {
+              const active = cat === selectedCategory;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
+                    active
+                      ? 'bg-slate-900 text-white shadow-md'
+                      : 'bg-white/60 text-slate-800 hover:scale-105'
+                  }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
+
           {/* Scrollable Container */}
           <div
             ref={scrollContainerRef}
@@ -123,77 +155,98 @@ export default function GallerySection() {
               msOverflowStyle: 'none',
             }}
           >
-            {galleryItems.map((image, index) => (
+            {filteredItems.map((item, index) => (
               <div
                 key={index}
-                onClick={() => setSelectedImage(image)}
-                className="group relative overflow-hidden rounded-[2rem] bg-white/20 backdrop-blur-sm border border-white/50 shadow-xl shadow-slate-200/30 hover:shadow-3xl hover:shadow-slate-300/40 hover:-translate-y-1.5 transition-all duration-500 flex-shrink-0 w-80 h-80 md:w-96 md:h-96 cursor-pointer"
+                onClick={() => {
+                  setSelectedImage(item.src);
+                  setSelectedIndex(index);
+                }}
+                className="group relative overflow-hidden rounded-[2rem] bg-white/20 backdrop-blur-sm border border-white/50 shadow-xl shadow-slate-200/30 hover:shadow-3xl hover:shadow-slate-300/40 hover:-translate-y-1.5 transition-all duration-500 flex-shrink-0 w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-[30rem] lg:h-[30rem] cursor-pointer"
               >
                 <Image
-                  src={image}
+                  src={item.src}
                   alt={`Gallery image ${index + 1}`}
                   fill
                   className="object-cover group-hover:scale-115 transition-transform duration-700 ease-out"
                 />
 
-                {/* Subtle hover camera icon overlay */}
-                <div className="absolute inset-0 bg-slate-900/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none">
-                  <div className="w-12 h-12 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-xl transform scale-50 group-hover:scale-100 transition-all duration-500 delay-100 text-slate-800 border border-white/40">
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
-                      />
-                    </svg>
-                  </div>
-                </div>
+                {/* Camera overlay removed as requested */}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Lightbox Modal */}
-        {selectedImage && (
+        {/* Lightbox Modal - full-bleed style */}
+        {selectedImage && selectedIndex !== null && (
           <div
-            className="fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
-            onClick={() => setSelectedImage(null)}
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center overflow-auto p-4 sm:p-6"
+            onClick={() => {
+              setSelectedImage(null);
+              setSelectedIndex(null);
+            }}
           >
             <div
-              className="relative max-w-5xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden"
+              className="relative w-full max-w-[92vw] sm:max-w-[980px] md:max-w-[1100px] max-h-[75vh] sm:max-h-[80vh] bg-black shadow-2xl rounded-md flex items-center justify-center overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
+              {/* left nav */}
               <button
-                onClick={() => setSelectedImage(null)}
-                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/90 hover:bg-white flex items-center justify-center text-slate-900 shadow-lg transition-all"
+                onClick={() => {
+                  if (selectedIndex > 0) {
+                    const prev = selectedIndex - 1;
+                    setSelectedIndex(prev);
+                    setSelectedImage(filteredItems[prev].src);
+                  }
+                }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-transparent border border-white/30 flex items-center justify-center text-white/90 hover:bg-white/5"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
 
-              {/* Full Size Image */}
-              <div className="relative aspect-[4/3] bg-slate-200 md:max-h-[80vh]">
+              {/* image panel */}
+              <div className="mx-auto max-w-full max-h-full p-4 sm:p-6 flex items-center justify-center">
                 <Image
                   src={selectedImage}
                   alt="Full size gallery image"
-                  fill
-                  className="object-contain"
+                  width={2000}
+                  height={1400}
+                  sizes="(max-width: 768px) 92vw, (max-width: 1100px) 92vw, 1100px"
+                  className="object-contain max-w-full max-h-full"
                   priority
                 />
               </div>
+
+              {/* right nav */}
+              <button
+                onClick={() => {
+                  if (selectedIndex < filteredItems.length - 1) {
+                    const next = selectedIndex + 1;
+                    setSelectedIndex(next);
+                    setSelectedImage(filteredItems[next].src);
+                  }
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-transparent border border-white/30 flex items-center justify-center text-white/90 hover:bg-white/5"
+              >
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {/* close button */}
+              <button
+                onClick={() => {
+                  setSelectedImage(null);
+                  setSelectedIndex(null);
+                }}
+                className="absolute top-3 right-3 z-40 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center text-slate-900 shadow"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
           </div>
         )}
